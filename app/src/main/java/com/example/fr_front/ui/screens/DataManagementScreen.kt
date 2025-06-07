@@ -1,5 +1,8 @@
 package com.example.fr_front.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -168,19 +171,30 @@ fun DataManagementScreen(navController: NavHostController) {
                                 val response = RetrofitClient.apiService.exportAllData()
                                 if (response.isSuccessful) {
                                     val result = response.body()
-                                    exportUrl = result?.download_url ?: ""
+
+                                    val downloadUrl = result?.download_url?.let { url ->
+                                        if (url.startsWith("http")) {
+                                            url
+                                        } else {
+                                            "https://fr-api-deploy-production.up.railway.app$url"
+                                        }
+                                    } ?: ""
+
+                                    exportUrl = downloadUrl
                                     resultMessage = """
-                                        ✅ ${result?.message}
+                                        ✅ ${result?.message ?: "Exportación completada"}
                                         
-                                        📁 Archivo: ${result?.filename}
-                                        📊 Registros exportados: ${result?.total_records}
+                                        📁 Archivo: ${result?.filename ?: "export.json"}
+                                        📊 Registros exportados: ${result?.total_records ?: 0}
                                         
-                                        El archivo está listo para descargar.
+                                        ${if (downloadUrl.isNotEmpty()) "🔗 URL: $downloadUrl" else "ℹ️ Archivo generado en el servidor"}
                                     """.trimIndent()
                                 } else {
+                                    exportUrl = ""
                                     resultMessage = "❌ Error en exportación: ${response.message()}"
                                 }
                             } catch (e: Exception) {
+                                exportUrl = ""
                                 resultMessage = "❌ Error de conexión: ${e.message}"
                             } finally {
                                 isLoading = false
@@ -357,15 +371,55 @@ fun DataManagementScreen(navController: NavHostController) {
                 }
             },
             dismissButton = {
-                if (exportUrl.isNotEmpty()) {
+                // Solo mostrar botón de descarga si la URL es válida
+                if (exportUrl.isNotEmpty() && exportUrl.startsWith("http")) {
                     TextButton(
                         onClick = {
-                            // Intentar abrir el URL de descarga
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(exportUrl))
-                            context.startActivity(intent)
+                            try {
+                                // Validar URL antes de crear el Intent
+                                val validUrl = if (!exportUrl.startsWith("http")) {
+                                    "https://fr-api-deploy-production.up.railway.app$exportUrl"
+                                } else {
+                                    exportUrl
+                                }
+
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(validUrl))
+                                // Verificar que existe una app para manejar el Intent
+                                if (intent.resolveActivity(context.packageManager) != null) {
+                                    context.startActivity(intent)
+                                } else {
+                                    // Fallback: copiar URL al clipboard
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    val clip = ClipData.newPlainText("URL de descarga", validUrl)
+                                    clipboard.setPrimaryClip(clip)
+                                    // Mostrar mensaje de que se copió al clipboard
+                                    resultMessage = "URL copiada al portapapeles: $validUrl"
+                                }
+                            } catch (e: Exception) {
+                                // Manejar error de forma segura
+                                resultMessage = "Error abriendo URL: ${e.message}\nURL: $exportUrl"
+                            }
                         }
                     ) {
                         Text("Descargar")
+                    }
+                } else {
+                    // Si no hay URL válida, mostrar botón para copiar el mensaje
+                    if (resultMessage.contains("http")) {
+                        TextButton(
+                            onClick = {
+                                try {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    val clip = ClipData.newPlainText("Resultado", resultMessage)
+                                    clipboard.setPrimaryClip(clip)
+                                } catch (e: Exception) {
+                                    // Ignorar error del clipboard
+                                }
+                                showResult = false
+                            }
+                        ) {
+                            Text("Copiar Info")
+                        }
                     }
                 }
             }

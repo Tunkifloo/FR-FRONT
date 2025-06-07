@@ -156,10 +156,10 @@ fun StatsScreen(navController: NavHostController) {
                 }
             }
 
-            // Configuración Actual
+            // Configuración Actual - CORREGIDA
             systemStats?.configuration?.let { config ->
                 item {
-                    SystemConfigurationCard(config)
+                    SystemConfigurationCard(config, systemStats?.system_info)
                 }
             }
 
@@ -379,7 +379,10 @@ fun DatabaseStatsCard(dbStats: com.example.fr_front.network.DatabaseStatistics) 
 }
 
 @Composable
-fun SystemConfigurationCard(config: com.example.fr_front.network.Configuration) {
+fun SystemConfigurationCard(
+    config: com.example.fr_front.network.Configuration,
+    systemInfo: com.example.fr_front.network.SystemInfoDetailed? = null
+) {
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -394,36 +397,57 @@ fun SystemConfigurationCard(config: com.example.fr_front.network.Configuration) 
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            ConfigurationRowWithIcon(
-                label = "Procesamiento Mejorado",
-                value = config.enhanced_processing,
-                icon = Icons.Default.AutoAwesome
-            )
-            ConfigurationRowWithIcon(
-                label = "Método de Características",
-                value = config.feature_method,
-                icon = Icons.Default.Psychology
-            )
-            ConfigurationRowWithIcon(
-                label = "Umbral Adaptativo",
-                value = config.adaptive_threshold,
-                icon = Icons.Default.Tune
-            )
-            ConfigurationRowWithIcon(
-                label = "Detectores Múltiples",
-                value = config.use_multiple_detectors,
-                icon = Icons.Default.CameraAlt
-            )
-            ConfigurationRowWithIcon(
-                label = "dlib Habilitado",
-                value = config.use_dlib,
-                icon = Icons.Default.Settings
-            )
+            // Información que viene de system_info (si está disponible)
+            systemInfo?.let { info ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Procesamiento Mejorado:")
+                    Text(if (info.enhanced_processing) "✅ Sí" else "❌ No")
+                }
 
-            InformationRow(
-                label = "Umbral por Defecto",
-                value = "${(config.default_threshold * 100).toInt()}%"
-            )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Método:")
+                    Text(info.feature_method)
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Umbral por Defecto:")
+                    Text("${(info.default_threshold * 100).toInt()}%")
+                }
+            }
+
+            // Información que viene de configuration
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Umbral Adaptativo:")
+                Text(if (config.adaptive_threshold) "✅ Sí" else "❌ No")
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Detectores Múltiples:")
+                Text(if (config.multiple_detectors) "✅ Sí" else "❌ No")
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("dlib:")
+                Text(if (config.use_dlib) "✅ Sí" else "❌ No")
+            }
         }
     }
 }
@@ -523,3 +547,44 @@ fun FileSystemCard(fileSystem: com.example.fr_front.network.FileSystemStats) {
         }
     }
 }
+
+@Composable
+fun SafeConfigurationDisplay(
+    label: String,
+    value: Any?,
+    fallback: String = "N/A"
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        val displayText = try {
+            when (value) {
+                null -> fallback
+                is Boolean -> if (value) "Habilitado" else "Deshabilitado"
+                is String -> if (value.isBlank()) fallback else value
+                is Number -> value.toString()
+                else -> value.toString()
+            }
+        } catch (e: Exception) {
+            fallback
+        }
+
+        Text(
+            displayText,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+

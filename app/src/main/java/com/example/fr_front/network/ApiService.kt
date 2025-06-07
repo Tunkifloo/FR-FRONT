@@ -324,9 +324,13 @@ data class PersonResponse(
     val id_estudiante: String?,
     val pk: String,
     val fecha_registro: String,
-    val activo: Boolean,
+    val activo: Int,
     val system_info: SystemInfo?
-)
+) {
+    // Función helper para obtener el valor como boolean
+    val isActive: Boolean
+        get() = activo == 1
+}
 
 data class Person(
     val id: Int,
@@ -335,8 +339,13 @@ data class Person(
     val correo: String,
     val id_estudiante: String?,
     val pk: String,
-    val fecha_registro: String
-)
+    val fecha_registro: String,
+    val activo: Int = 1
+) {
+    // Función helper para obtener el valor como boolean
+    val isActive: Boolean
+        get() = activo == 1
+}
 
 data class RecognitionResponse(
     val person: PersonResponse,
@@ -403,7 +412,7 @@ data class DetailedMetrics(
 
 data class SystemInfo(
     val enhanced_processing: Boolean,
-    val feature_method: String,
+    val feature_method: String?,
     val threshold: Double?,
     val comparison_method: String?
 )
@@ -428,6 +437,29 @@ data class RecognitionStatsResponse(
 )
 
 data class Configuration(
+    val enhanced_processing: Boolean = false,
+    val feature_method: String? = null,
+    val default_threshold: Double = 0.0,
+    val adaptive_threshold: Boolean = false,
+    val multiple_detectors: Boolean = false,
+    val use_multiple_detectors: Boolean = false,
+    val use_dlib: Boolean = false,
+    val comparison_weights: Map<String, Double>? = null
+)
+
+fun Configuration.toSafeConfiguration(): SafeConfiguration {
+    return SafeConfiguration(
+        enhanced_processing = this.enhanced_processing,
+        feature_method = this.feature_method ?: "traditional",
+        default_threshold = this.default_threshold,
+        adaptive_threshold = this.adaptive_threshold,
+        use_multiple_detectors = this.use_multiple_detectors,
+        use_dlib = this.use_dlib,
+        comparison_weights = this.comparison_weights
+    )
+}
+
+data class SafeConfiguration(
     val enhanced_processing: Boolean,
     val feature_method: String,
     val default_threshold: Double,

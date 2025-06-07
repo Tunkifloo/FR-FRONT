@@ -23,12 +23,23 @@ fun createMultipartFromUri(context: Context, uri: Uri, partName: String): Multip
         }
     }
 
-    val requestBody = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
+    // tipo MIME correcto basado en la extensión del archivo
+    val mimeType = when (fileName.substringAfterLast('.', "").lowercase()) {
+        "jpg", "jpeg" -> "image/jpeg"
+        "png" -> "image/png"
+        "webp" -> "image/webp"
+        "bmp" -> "image/bmp"
+        "gif" -> "image/gif"
+        else -> "image/*" // Fallback genérico
+    }
+
+    val requestBody = tempFile.asRequestBody(mimeType.toMediaTypeOrNull())
     return MultipartBody.Part.createFormData(partName, fileName, requestBody)
 }
 
 fun getFileName(context: Context, uri: Uri): String {
-    var result = "image.jpg"
+    var result = "image.jpg" // Cambiar default a jpg
+
     if (uri.scheme == "content") {
         val cursor = context.contentResolver.query(uri, null, null, null, null)
         cursor?.use {
@@ -46,6 +57,11 @@ fun getFileName(context: Context, uri: Uri): String {
             if (cut != -1) path.substring(cut + 1) else "image.jpg"
         } ?: "image.jpg"
     }
+
+    if (!result.contains('.')) {
+        result += ".jpg"
+    }
+
     return result
 }
 

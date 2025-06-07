@@ -28,6 +28,10 @@ import com.example.fr_front.utils.createMultipartFromUri
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import androidx.core.content.FileProvider
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,17 +48,51 @@ fun RegisterPersonScreen(navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Función para crear URI temporal para la cámara
+    fun createImageUri(format: String = "jpg"): Uri {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "IMG_${timeStamp}_"
+        val storageDir = File(context.cacheDir, "images")
+        if (!storageDir.exists()) {
+            storageDir.mkdirs()
+        }
+
+        // Validar formato y asignar extensión apropiada
+        val extension = when (format.lowercase()) {
+            "png" -> ".png"
+            "jpeg", "jpg" -> ".jpg"
+            else -> ".jpg" // Por defecto JPG
+        }
+
+        val imageFile = File.createTempFile(
+            imageFileName,
+            extension,
+            storageDir
+        )
+
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            imageFile
+        )
+    }
+
+    // Launcher para seleccionar imagen de galería (múltiples formatos)
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         selectedImageUri = uri
     }
 
+    // URI temporal para la cámara
+    var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Launcher para tomar foto con cámara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
-        if (success) {
-            // La imagen se guardó en selectedImageUri
+        if (success && tempImageUri != null) {
+            selectedImageUri = tempImageUri
         }
     }
 
@@ -158,7 +196,10 @@ fun RegisterPersonScreen(navController: NavHostController) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedButton(
-                                onClick = { selectedImageUri = null }
+                                onClick = {
+                                    selectedImageUri = null
+                                    tempImageUri = null
+                                }
                             ) {
                                 Icon(Icons.Default.Delete, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -168,9 +209,20 @@ fun RegisterPersonScreen(navController: NavHostController) {
                             OutlinedButton(
                                 onClick = { imagePickerLauncher.launch("image/*") }
                             ) {
-                                Icon(Icons.Default.Edit, contentDescription = null)
+                                Icon(Icons.Default.PhotoLibrary, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Cambiar")
+                                Text("Galería")
+                            }
+
+                            OutlinedButton(
+                                onClick = {
+                                    tempImageUri = createImageUri("jpg") // JPG por defecto para cámara
+                                    cameraLauncher.launch(tempImageUri!!)
+                                }
+                            ) {
+                                Icon(Icons.Default.CameraAlt, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Cámara")
                             }
                         }
                     } else {
@@ -202,11 +254,10 @@ fun RegisterPersonScreen(navController: NavHostController) {
                                 Text("Galería")
                             }
 
-                            OutlinedButton(
+                            Button(
                                 onClick = {
-                                    // Para cámara necesitarías configurar más permisos
-                                    // y crear un URI temporal
-                                    imagePickerLauncher.launch("image/*")
+                                    tempImageUri = createImageUri("jpg") // JPG por defecto para cámara
+                                    cameraLauncher.launch(tempImageUri!!)
                                 }
                             ) {
                                 Icon(Icons.Default.CameraAlt, contentDescription = null)
@@ -265,6 +316,7 @@ fun RegisterPersonScreen(navController: NavHostController) {
                                 correo = ""
                                 idEstudiante = ""
                                 selectedImageUri = null
+                                tempImageUri = null
                             } else {
                                 resultMessage = "❌ Error: ${response.message()}"
                             }

@@ -106,12 +106,12 @@ fun ConfigurationStatusRow(label: String, enabled: Boolean) {
 }
 
 /**
- * Componente para mostrar una fila de configuración con icono y valor boolean
+ * Componente para mostrar una fila de configuración con icono y valor - VERSION CORREGIDA
  */
 @Composable
 fun ConfigurationRowWithIcon(
     label: String,
-    value: Any,
+    value: Any?, // Cambiar a nullable
     icon: ImageVector
 ) {
     Row(
@@ -133,45 +133,112 @@ fun ConfigurationRowWithIcon(
             modifier = Modifier.weight(1f)
         )
 
-        when (value) {
+        // Manejar correctamente valores null
+        val displayValue = value ?: "N/A"
+
+        when (displayValue) {
             is Boolean -> {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = if (value) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    color = if (displayValue) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            if (value) Icons.Default.Check else Icons.Default.Close,
+                            if (displayValue) Icons.Default.Check else Icons.Default.Close,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = if (value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                            tint = if (displayValue) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            if (value) "Sí" else "No",
+                            if (displayValue) "Sí" else "No",
                             style = MaterialTheme.typography.labelMedium,
-                            color = if (value) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.outline
+                            color = if (displayValue) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.outline
                         )
                     }
                 }
             }
             is String -> {
                 Text(
-                    value,
+                    displayValue,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
             }
             else -> {
                 Text(
-                    value.toString(),
+                    displayValue.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
             }
+        }
+    }
+}
+
+/**
+ * Componente alternativo más seguro para configuraciones
+ */
+@Composable
+fun SafeConfigurationRowWithIcon(
+    label: String,
+    value: String?,
+    icon: ImageVector,
+    isBoolean: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        if (isBoolean) {
+            val safeValue = value ?: "false"
+            val boolValue = safeValue.lowercase() in listOf("true", "sí", "yes", "enabled", "habilitado")
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = if (boolValue) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        if (boolValue) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = if (boolValue) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        if (boolValue) "Sí" else "No",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (boolValue) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+        } else {
+            Text(
+                value ?: "N/A",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
@@ -273,13 +340,13 @@ fun MetricDisplayCard(
 }
 
 /**
- * Componente para mostrar información de persona con icono
+ * Componente para mostrar información de persona con icono - VERSIÓN SEGURA
  */
 @Composable
 fun PersonInformationRow(
     icon: ImageVector,
     label: String,
-    value: String
+    value: String?  // Cambiado a nullable
 ) {
     Row(
         modifier = Modifier
@@ -303,7 +370,7 @@ fun PersonInformationRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                value,
+                value ?: "N/A",  // Manejar valores null
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )

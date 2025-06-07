@@ -284,76 +284,107 @@ fun SearchPersonScreen(navController: NavHostController) {
                         Divider()
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Información personal
-                        PersonInfoRow(
-                            icon = Icons.Default.Person,
-                            label = "Nombre Completo",
-                            value = "${foundPerson!!.nombre} ${foundPerson!!.apellidos}"
-                        )
+                        // Información básica usando Text simple (más seguro)
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Nombre completo
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "👤 Nombre:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    "${foundPerson!!.nombre} ${foundPerson!!.apellidos}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
 
-                        PersonInfoRow(
-                            icon = Icons.Default.Email,
-                            label = "Correo Electrónico",
-                            value = foundPerson!!.correo
-                        )
+                            // Email
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "📧 Email:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    foundPerson!!.correo,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
 
-                        if (!foundPerson!!.id_estudiante.isNullOrBlank()) {
-                            PersonInfoRow(
-                                icon = Icons.Default.Badge,
-                                label = "ID Estudiante",
-                                value = foundPerson!!.id_estudiante!!
-                            )
-                        }
+                            // ID Estudiante (solo si no es null)
+                            foundPerson!!.id_estudiante?.let { studentId ->
+                                if (studentId.isNotBlank()) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            "🆔 ID Estudiante:",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            studentId,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+                            }
 
-                        PersonInfoRow(
-                            icon = Icons.Default.Key,
-                            label = "ID Interno",
-                            value = "#${foundPerson!!.id} (${foundPerson!!.pk})"
-                        )
+                            // ID Interno
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "🔑 ID Interno:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    "#${foundPerson!!.id}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
 
-                        PersonInfoRow(
-                            icon = Icons.Default.CalendarToday,
-                            label = "Fecha de Registro",
-                            value = formatDate(foundPerson!!.fecha_registro)
-                        )
+                            // Fecha de registro
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "📅 Registro:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    formatDate(foundPerson!!.fecha_registro),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
 
-                        PersonInfoRow(
-                            icon = Icons.Default.ToggleOn,
-                            label = "Estado",
-                            value = if (foundPerson!!.activo) "Activo" else "Inactivo"
-                        )
-
-                        // Información del sistema si está disponible
-                        foundPerson!!.system_info?.let { systemInfo ->
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Divider()
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                "Información del Sistema",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            PersonInfoRow(
-                                icon = Icons.Default.Settings,
-                                label = "Método de Procesamiento",
-                                value = systemInfo.feature_method
-                            )
-
-                            PersonInfoRow(
-                                icon = Icons.Default.AutoAwesome,
-                                label = "Procesamiento Mejorado",
-                                value = if (systemInfo.enhanced_processing) "Habilitado" else "Deshabilitado"
-                            )
-
-                            systemInfo.threshold?.let { threshold ->
-                                PersonInfoRow(
-                                    icon = Icons.Default.Tune,
-                                    label = "Umbral de Similitud",
-                                    value = "${(threshold * 100).toInt()}%"
+                            // Estado
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "⚡ Estado:",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    if (foundPerson!!.isActive) "✅ Activo" else "❌ Inactivo",
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         }
@@ -399,7 +430,7 @@ fun SearchPersonScreen(navController: NavHostController) {
 fun PersonInfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
-    value: String
+    value: String?
 ) {
     Row(
         modifier = Modifier
@@ -423,7 +454,7 @@ fun PersonInfoRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                value,
+                value ?: "N/A",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )

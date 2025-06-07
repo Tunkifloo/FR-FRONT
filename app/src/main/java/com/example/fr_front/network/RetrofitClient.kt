@@ -8,9 +8,10 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // Cambia esta URL por la de tu servidor
-    private const val BASE_URL = "http://fr-api-deploy-production.up.railway.app" // Para emulador Android
-    // private const val BASE_URL = "http://192.168.1.100:8000/" // Para dispositivo físico
+    // Cambia esta URL por la de tu servidor - CORREGIDA
+    private const val BASE_URL = "https://fr-api-deploy-production.up.railway.app/" // Agregado protocolo https y trailing slash
+    // private const val BASE_URL = "http://10.0.2.2:8000/" // Para emulador Android con servidor local
+    // private const val BASE_URL = "http://192.168.1.100:8000/" // Para dispositivo físico con servidor local
     // private const val BASE_URL = "https://tu-servidor.com/" // Para producción
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
