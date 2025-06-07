@@ -1,20 +1,20 @@
 package com.example.fr_front.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.fr_front.network.*
+import com.example.fr_front.ui.components.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,6 +29,7 @@ fun HealthCheckScreen(navController: NavHostController) {
 
     val scope = rememberCoroutineScope()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun performHealthCheck() {
         scope.launch {
             isLoading = true
@@ -55,7 +56,9 @@ fun HealthCheckScreen(navController: NavHostController) {
                     systemInfo = infoResponse.body()
                 }
 
-                lastCheckTime = java.time.LocalDateTime.now().toString()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    lastCheckTime = java.time.LocalDateTime.now().toString()
+                }
 
             } catch (e: Exception) {
                 errorMessage = "Error de conexión: ${e.message}"
@@ -294,8 +297,8 @@ fun GeneralHealthCard(health: GeneralHealthResponse) {
             if (health.dependencies.isNotEmpty()) {
                 Text(
                     "Dependencias:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -348,9 +351,9 @@ fun AdminHealthCard(health: HealthCheckResponse) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            ConfigRow("Procesamiento Mejorado", if (health.system_config.enhanced_processing) "Habilitado" else "Deshabilitado")
-            ConfigRow("Método de Características", health.system_config.feature_method)
-            ConfigRow("Umbrales Adaptativos", if (health.system_config.adaptive_threshold) "Habilitado" else "Deshabilitado")
+            ConfigurationRow("Procesamiento Mejorado", if (health.system_config.enhanced_processing) "Habilitado" else "Deshabilitado")
+            ConfigurationRow("Método de Características", health.system_config.feature_method)
+            ConfigurationRow("Umbrales Adaptativos", if (health.system_config.adaptive_threshold) "Habilitado" else "Deshabilitado")
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -414,10 +417,10 @@ fun SystemInfoCard(info: SystemInfoResponse) {
             Spacer(modifier = Modifier.height(12.dp))
 
             // Información básica del sistema
-            ConfigRow("Nombre", info.system.name)
-            ConfigRow("Versión", info.system.version)
-            ConfigRow("Modo", info.system.mode)
-            ConfigRow("Entorno", info.system.environment)
+            ConfigurationRow("Nombre", info.system.name)
+            ConfigurationRow("Versión", info.system.version)
+            ConfigurationRow("Modo", info.system.mode)
+            ConfigurationRow("Entorno", info.system.environment)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -432,7 +435,7 @@ fun SystemInfoCard(info: SystemInfoResponse) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 info.dependencies.forEach { (dep, version) ->
-                    ConfigRow(dep, version)
+                    ConfigurationRow(dep, version)
                 }
             }
 
@@ -469,85 +472,11 @@ fun SystemInfoCard(info: SystemInfoResponse) {
                             }
                         }
                         else -> {
-                            ConfigRow(capability, value.toString())
+                            ConfigurationRow(capability, value.toString())
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ComponentStatusRow(name: String, status: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            name,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = when (status.lowercase()) {
-                "connected", "ready", "healthy", "available" -> MaterialTheme.colorScheme.primaryContainer
-                "degraded", "warning" -> MaterialTheme.colorScheme.tertiaryContainer
-                else -> MaterialTheme.colorScheme.errorContainer
-            }
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    when (status.lowercase()) {
-                        "connected", "ready", "healthy", "available" -> Icons.Default.CheckCircle
-                        "degraded", "warning" -> Icons.Default.Warning
-                        else -> Icons.Default.Error
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = when (status.lowercase()) {
-                        "connected", "ready", "healthy", "available" -> MaterialTheme.colorScheme.primary
-                        "degraded", "warning" -> MaterialTheme.colorScheme.tertiary
-                        else -> MaterialTheme.colorScheme.error
-                    }
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    status,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = when (status.lowercase()) {
-                        "connected", "ready", "healthy", "available" -> MaterialTheme.colorScheme.onPrimaryContainer
-                        "degraded", "warning" -> MaterialTheme.colorScheme.onTertiaryContainer
-                        else -> MaterialTheme.colorScheme.onErrorContainer
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ConfigRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
-        )
     }
 }

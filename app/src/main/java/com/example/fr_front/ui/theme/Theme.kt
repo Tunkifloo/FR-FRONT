@@ -4,6 +4,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 // Colores personalizados para la app de reconocimiento facial
 private val md_theme_light_primary = Color(0xFF1976D2)
@@ -132,95 +135,95 @@ fun FrFrontTheme(
 }
 
 // Tipografía personalizada
-val Typography = androidx.compose.material3.Typography(
-    displayLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(57),
-        lineHeight = androidx.compose.ui.unit.sp(64),
-        letterSpacing = androidx.compose.ui.unit.sp(-0.25)
+val Typography = Typography(
+    displayLarge = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 57.sp,
+        lineHeight = 64.sp,
+        letterSpacing = (-0.25).sp
     ),
-    displayMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(45),
-        lineHeight = androidx.compose.ui.unit.sp(52),
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+    displayMedium = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 45.sp,
+        lineHeight = 52.sp,
+        letterSpacing = 0.sp
     ),
-    displaySmall = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(36),
-        lineHeight = androidx.compose.ui.unit.sp(44),
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+    displaySmall = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 36.sp,
+        lineHeight = 44.sp,
+        letterSpacing = 0.sp
     ),
-    headlineLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(32),
-        lineHeight = androidx.compose.ui.unit.sp(40),
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+    headlineLarge = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = 0.sp
     ),
-    headlineMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(28),
-        lineHeight = androidx.compose.ui.unit.sp(36),
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+    headlineMedium = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = 0.sp
     ),
-    headlineSmall = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(24),
-        lineHeight = androidx.compose.ui.unit.sp(32),
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+    headlineSmall = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.sp
     ),
-    titleLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W700,
-        fontSize = androidx.compose.ui.unit.sp(22),
-        lineHeight = androidx.compose.ui.unit.sp(28),
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+    titleLarge = TextStyle(
+        fontWeight = FontWeight.W700,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
     ),
-    titleMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W700,
-        fontSize = androidx.compose.ui.unit.sp(16),
-        lineHeight = androidx.compose.ui.unit.sp(24),
-        letterSpacing = androidx.compose.ui.unit.sp(0.1)
+    titleMedium = TextStyle(
+        fontWeight = FontWeight.W700,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.1.sp
     ),
-    titleSmall = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W500,
-        fontSize = androidx.compose.ui.unit.sp(14),
-        lineHeight = androidx.compose.ui.unit.sp(20),
-        letterSpacing = androidx.compose.ui.unit.sp(0.1)
+    titleSmall = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
     ),
-    bodyLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(16),
-        lineHeight = androidx.compose.ui.unit.sp(24),
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+    bodyLarge = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
     ),
-    bodyMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(14),
-        lineHeight = androidx.compose.ui.unit.sp(20),
-        letterSpacing = androidx.compose.ui.unit.sp(0.25)
+    bodyMedium = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
     ),
-    bodySmall = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W400,
-        fontSize = androidx.compose.ui.unit.sp(12),
-        lineHeight = androidx.compose.ui.unit.sp(16),
-        letterSpacing = androidx.compose.ui.unit.sp(0.4)
+    bodySmall = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp
     ),
-    labelLarge = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W500,
-        fontSize = androidx.compose.ui.unit.sp(14),
-        lineHeight = androidx.compose.ui.unit.sp(20),
-        letterSpacing = androidx.compose.ui.unit.sp(0.1)
+    labelLarge = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
     ),
-    labelMedium = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W500,
-        fontSize = androidx.compose.ui.unit.sp(12),
-        lineHeight = androidx.compose.ui.unit.sp(16),
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+    labelMedium = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     ),
-    labelSmall = androidx.compose.ui.text.TextStyle(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.W500,
-        fontSize = androidx.compose.ui.unit.sp(11),
-        lineHeight = androidx.compose.ui.unit.sp(16),
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+    labelSmall = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     )
 )

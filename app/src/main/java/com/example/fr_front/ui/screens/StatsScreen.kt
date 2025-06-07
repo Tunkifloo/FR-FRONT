@@ -2,7 +2,6 @@ package com.example.fr_front.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,6 +15,7 @@ import androidx.navigation.NavHostController
 import com.example.fr_front.network.RetrofitClient
 import com.example.fr_front.network.SystemStatsResponse
 import com.example.fr_front.network.HealthCheckResponse
+import com.example.fr_front.ui.components.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,7 +159,7 @@ fun StatsScreen(navController: NavHostController) {
             // Configuración Actual
             systemStats?.configuration?.let { config ->
                 item {
-                    ConfigurationCard(config)
+                    SystemConfigurationCard(config)
                 }
             }
 
@@ -227,19 +227,19 @@ fun SystemHealthCard(health: HealthCheckResponse) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ComponentStatus(
+                ComponentStatusDisplay(
                     name = "Base de Datos",
                     status = health.components.database.status,
                     icon = Icons.Default.Storage
                 )
 
-                ComponentStatus(
+                ComponentStatusDisplay(
                     name = "Reconocimiento",
                     status = if (health.components.facial_recognition == "ready") "ready" else "error",
                     icon = Icons.Default.Face
                 )
 
-                ComponentStatus(
+                ComponentStatusDisplay(
                     name = "Archivos",
                     status = health.components.file_system,
                     icon = Icons.Default.Folder
@@ -250,7 +250,7 @@ fun SystemHealthCard(health: HealthCheckResponse) {
 }
 
 @Composable
-fun ComponentStatus(name: String, status: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+fun ComponentStatusDisplay(name: String, status: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -294,12 +294,12 @@ fun SystemInfoCard(info: com.example.fr_front.network.SystemInfoDetailed) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            InfoRow(label = "Versión", value = info.version)
-            InfoRow(label = "Estado", value = info.status)
-            InfoRow(label = "Base de Datos", value = info.database)
-            InfoRow(label = "Procesamiento Mejorado", value = if (info.enhanced_processing) "Habilitado" else "Deshabilitado")
-            InfoRow(label = "Método de Características", value = info.feature_method)
-            InfoRow(label = "Umbral por Defecto", value = "${(info.default_threshold * 100).toInt()}%")
+            InformationRow(label = "Versión", value = info.version)
+            InformationRow(label = "Estado", value = info.status)
+            InformationRow(label = "Base de Datos", value = info.database)
+            InformationRow(label = "Procesamiento Mejorado", value = if (info.enhanced_processing) "Habilitado" else "Deshabilitado")
+            InformationRow(label = "Método de Características", value = info.feature_method)
+            InformationRow(label = "Umbral por Defecto", value = "${(info.default_threshold * 100).toInt()}%")
         }
     }
 }
@@ -324,13 +324,13 @@ fun DatabaseStatsCard(dbStats: com.example.fr_front.network.DatabaseStatistics) 
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatCard(
+                MetricDisplayCard(
                     title = "Personas",
                     value = dbStats.total_persons.toString(),
                     icon = Icons.Default.People
                 )
 
-                StatCard(
+                MetricDisplayCard(
                     title = "Modelos",
                     value = dbStats.total_models.toString(),
                     icon = Icons.Default.Psychology
@@ -339,12 +339,12 @@ fun DatabaseStatsCard(dbStats: com.example.fr_front.network.DatabaseStatistics) 
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            InfoRow(label = "MySQL", value = dbStats.mysql_version)
+            InformationRow(label = "MySQL", value = dbStats.mysql_version)
             dbStats.first_register?.let {
-                InfoRow(label = "Primer Registro", value = it.substring(0, 10))
+                InformationRow(label = "Primer Registro", value = it.substring(0, 10))
             }
             dbStats.last_register?.let {
-                InfoRow(label = "Último Registro", value = it.substring(0, 10))
+                InformationRow(label = "Último Registro", value = it.substring(0, 10))
             }
 
             // Métodos de procesamiento
@@ -379,7 +379,7 @@ fun DatabaseStatsCard(dbStats: com.example.fr_front.network.DatabaseStatistics) 
 }
 
 @Composable
-fun ConfigurationCard(config: com.example.fr_front.network.Configuration) {
+fun SystemConfigurationCard(config: com.example.fr_front.network.Configuration) {
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -394,33 +394,33 @@ fun ConfigurationCard(config: com.example.fr_front.network.Configuration) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            ConfigRow(
+            ConfigurationRowWithIcon(
                 label = "Procesamiento Mejorado",
                 value = config.enhanced_processing,
-                icon = Icons.Default.Enhancement
+                icon = Icons.Default.AutoAwesome
             )
-            ConfigRow(
+            ConfigurationRowWithIcon(
                 label = "Método de Características",
                 value = config.feature_method,
                 icon = Icons.Default.Psychology
             )
-            ConfigRow(
+            ConfigurationRowWithIcon(
                 label = "Umbral Adaptativo",
                 value = config.adaptive_threshold,
                 icon = Icons.Default.Tune
             )
-            ConfigRow(
+            ConfigurationRowWithIcon(
                 label = "Detectores Múltiples",
                 value = config.use_multiple_detectors,
                 icon = Icons.Default.CameraAlt
             )
-            ConfigRow(
+            ConfigurationRowWithIcon(
                 label = "dlib Habilitado",
                 value = config.use_dlib,
                 icon = Icons.Default.Settings
             )
 
-            InfoRow(
+            InformationRow(
                 label = "Umbral por Defecto",
                 value = "${(config.default_threshold * 100).toInt()}%"
             )
@@ -444,11 +444,11 @@ fun FileSystemCard(fileSystem: com.example.fr_front.network.FileSystemStats) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            InfoRow(
+            InformationRow(
                 label = "Total de Archivos",
                 value = fileSystem.total_files.toString()
             )
-            InfoRow(
+            InformationRow(
                 label = "Tamaño Total",
                 value = fileSystem.total_size_formatted
             )
@@ -519,132 +519,6 @@ fun FileSystemCard(fileSystem: com.example.fr_front.network.FileSystemStats) {
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun StatCard(
-    title: String,
-    value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
-) {
-    Surface(
-        modifier = Modifier.size(80.dp),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.primaryContainer
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                value,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                title,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-fun InfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-@Composable
-fun ConfigRow(
-    label: String,
-    value: Any,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            icon,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
-        )
-
-        when (value) {
-            is Boolean -> {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (value) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            if (value) Icons.Default.Check else Icons.Default.Close,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = if (value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            if (value) "Sí" else "No",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (value) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.outline
-                        )
-                    }
-                }
-            }
-            is String -> {
-                Text(
-                    value,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            else -> {
-                Text(
-                    value.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
             }
         }
     }

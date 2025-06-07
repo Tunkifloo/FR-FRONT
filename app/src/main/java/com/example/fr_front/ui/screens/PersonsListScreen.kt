@@ -138,7 +138,7 @@ fun PersonsListScreen(navController: NavHostController) {
                             val porMetodo = stats["por_metodo"] as? Map<String, Int>
                             val enhanced = porMetodo?.get("enhanced") ?: 0
                             StatItem(
-                                icon = Icons.Default.Enhancement,
+                                icon = Icons.Default.AutoAwesome,
                                 label = "Mejorado",
                                 value = enhanced.toString()
                             )

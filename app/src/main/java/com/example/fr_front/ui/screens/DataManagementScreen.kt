@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.fr_front.network.RetrofitClient
+import com.example.fr_front.network.*
 import com.example.fr_front.utils.createMultipartFromUri
 import kotlinx.coroutines.launch
 
@@ -50,11 +51,11 @@ fun DataManagementScreen(navController: NavHostController) {
                             ✅ Importación completada
                             
                             📊 Resultados:
-                            • Total procesados: ${result?.total ?: 0}
-                            • Importados exitosamente: ${result?.successful ?: 0}
-                            • Errores: ${result?.failed ?: 0}
+                            • Total procesados: ${result?.imported ?: 0}
+                            • Importados exitosamente: ${result?.imported ?: 0}
+                            • Errores: ${result?.errors ?: 0}
                             
-                            ${if ((result?.errors?.size ?: 0) > 0) "\n❌ Errores encontrados:\n${result?.errors?.take(3)?.joinToString("\n") { "• $it" }}" else ""}
+                            ${if ((result?.error_details?.size ?: 0) > 0) "\n❌ Errores encontrados:\n${result?.error_details?.take(3)?.joinToString("\n") { "• $it" }}" else ""}
                         """.trimIndent()
                     } else {
                         resultMessage = "❌ Error en importación: ${response.message()}"
@@ -391,6 +392,88 @@ fun DataActionCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Surface(
+                    modifier = Modifier.size(40.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Procesando...")
+                } else {
+                    Icon(icon, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(buttonText)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SyncStatusCard(syncStatus: Map<String, Any>) {
+    val status = syncStatus["status"] as? String ?: "unknown"
+    val dbRecords = syncStatus["database_records"] as? Double ?: 0.0
+    val jsonBackups = syncStatus["json_backups"] as? Double ?: 0.0
+    val pickleModels = syncStatus["pickle_models"] as? Double ?: 0.0
+    val recommendation = syncStatus["recommendation"] as? String ?: ""
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = when (status) {
+                "perfect" -> MaterialTheme.colorScheme.primaryContainer
+                "inconsistent" -> MaterialTheme.colorScheme.tertiaryContainer
+                else -> MaterialTheme.colorScheme.errorContainer
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     when (status) {
                         "perfect" -> Icons.Default.CheckCircle
@@ -474,86 +557,4 @@ fun SyncMetric(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
-}(
-verticalAlignment = Alignment.CenterVertically
-) {
-    Surface(
-        modifier = Modifier.size(40.dp),
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.primaryContainer
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-
-    Spacer(modifier = Modifier.width(12.dp))
-
-    Column(
-        modifier = Modifier.weight(1f)
-    ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
 }
-
-Spacer(modifier = Modifier.height(12.dp))
-
-Button(
-onClick = onClick,
-modifier = Modifier.fillMaxWidth(),
-enabled = !isLoading
-) {
-    if (isLoading) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(20.dp),
-            color = MaterialTheme.colorScheme.onPrimary
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text("Procesando...")
-    } else {
-        Icon(icon, contentDescription = null)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(buttonText)
-    }
-}
-}
-}
-}
-
-@Composable
-fun SyncStatusCard(syncStatus: Map<String, Any>) {
-    val status = syncStatus["status"] as? String ?: "unknown"
-    val dbRecords = syncStatus["database_records"] as? Double ?: 0.0
-    val jsonBackups = syncStatus["json_backups"] as? Double ?: 0.0
-    val pickleModels = syncStatus["pickle_models"] as? Double ?: 0.0
-    val recommendation = syncStatus["recommendation"] as? String ?: ""
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = when (status) {
-                "perfect" -> MaterialTheme.colorScheme.primaryContainer
-                "inconsistent" -> MaterialTheme.colorScheme.tertiaryContainer
-                else -> MaterialTheme.colorScheme.errorContainer
-            }
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row

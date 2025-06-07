@@ -111,6 +111,109 @@ fun ToolsScreen(navController: NavHostController) {
                                     El archivo está listo para descargar.
                                 """.trimIndent()
                             } else {
+                                resultMessage = "❌ Error en exportación: ${response.message()}"
+                            }
+                        } catch (e: Exception) {
+                            resultMessage = "❌ Error de conexión: ${e.message}"
+                        } finally {
+                            isExecuting = false
+                            showResult = true
+                        }
+                    }
+                }
+            ),
+            Tool(
+                title = "Crear Backup",
+                description = "Generar respaldo completo del sistema",
+                icon = Icons.Default.Backup,
+                category = "Gestión de Datos",
+                action = {
+                    scope.launch {
+                        isExecuting = true
+                        try {
+                            val response = RetrofitClient.apiService.createBackup()
+                            if (response.isSuccessful) {
+                                val result = response.body()
+                                resultMessage = """
+                                    ✅ ${result?.message}
+                                    
+                                    Backup creado exitosamente en el servidor.
+                                """.trimIndent()
+                            } else {
+                                resultMessage = "❌ Error creando backup: ${response.message()}"
+                            }
+                        } catch (e: Exception) {
+                            resultMessage = "❌ Error de conexión: ${e.message}"
+                        } finally {
+                            isExecuting = false
+                            showResult = true
+                        }
+                    }
+                }
+            ),
+            Tool(
+                title = "Verificar Sincronización",
+                description = "Comprobar consistencia entre BD, JSON y modelos",
+                icon = Icons.Default.Sync,
+                category = "Gestión de Datos",
+                action = {
+                    scope.launch {
+                        isExecuting = true
+                        try {
+                            val response = RetrofitClient.apiService.checkSynchronization()
+                            if (response.isSuccessful) {
+                                val result = response.body()
+                                val sync = result?.synchronization
+                                resultMessage = """
+                                    📊 Estado de Sincronización: ${sync?.get("status") ?: "N/A"}
+                                    
+                                    📈 Estadísticas:
+                                    • Registros en BD: ${sync?.get("database_records") ?: 0}
+                                    • Backups JSON: ${sync?.get("json_backups") ?: 0}
+                                    • Modelos Pickle: ${sync?.get("pickle_models") ?: 0}
+                                    
+                                    💡 ${sync?.get("recommendation") ?: "Estado verificado"}
+                                """.trimIndent()
+                            } else {
+                                resultMessage = "❌ Error verificando sincronización: ${response.message()}"
+                            }
+                        } catch (e: Exception) {
+                            resultMessage = "❌ Error de conexión: ${e.message}"
+                        } finally {
+                            isExecuting = false
+                            showResult = true
+                        }
+                    }
+                }
+            ),
+            Tool(
+                title = "Gestión de Datos Completa",
+                description = "Acceder al panel completo de gestión de datos",
+                icon = Icons.Default.ManageAccounts,
+                category = "Gestión de Datos",
+                action = { navController.navigate("data_management") }
+            ),
+
+            // Herramientas de Mantenimiento
+            Tool(
+                title = "Limpiar Sistema",
+                description = "Eliminar archivos temporales y optimizar espacio",
+                icon = Icons.Default.CleaningServices,
+                category = "Mantenimiento",
+                action = {
+                    scope.launch {
+                        isExecuting = true
+                        try {
+                            val response = RetrofitClient.apiService.cleanupSystem(24)
+                            if (response.isSuccessful) {
+                                val result = response.body()
+                                resultMessage = """
+                                    ✅ ${result?.message}
+                                    
+                                    🧹 Limpieza completada
+                                    ⏱️ Archivos de más de 24 horas eliminados
+                                """.trimIndent()
+                            } else {
                                 resultMessage = "❌ Error en limpieza: ${response.message()}"
                             }
                         } catch (e: Exception) {
@@ -446,107 +549,4 @@ fun ToolCard(
             }
         }
     }
-} exportación: ${response.message()}"
 }
-} catch (e: Exception) {
-    resultMessage = "❌ Error de conexión: ${e.message}"
-} finally {
-    isExecuting = false
-    showResult = true
-}
-}
-}
-),
-Tool(
-title = "Crear Backup",
-description = "Generar respaldo completo del sistema",
-icon = Icons.Default.Backup,
-category = "Gestión de Datos",
-action = {
-    scope.launch {
-        isExecuting = true
-        try {
-            val response = RetrofitClient.apiService.createBackup()
-            if (response.isSuccessful) {
-                val result = response.body()
-                resultMessage = """
-                                    ✅ ${result?.message}
-                                    
-                                    Backup creado exitosamente en el servidor.
-                                """.trimIndent()
-            } else {
-                resultMessage = "❌ Error creando backup: ${response.message()}"
-            }
-        } catch (e: Exception) {
-            resultMessage = "❌ Error de conexión: ${e.message}"
-        } finally {
-            isExecuting = false
-            showResult = true
-        }
-    }
-}
-),
-Tool(
-title = "Verificar Sincronización",
-description = "Comprobar consistencia entre BD, JSON y modelos",
-icon = Icons.Default.Sync,
-category = "Gestión de Datos",
-action = {
-    scope.launch {
-        isExecuting = true
-        try {
-            val response = RetrofitClient.apiService.checkSynchronization()
-            if (response.isSuccessful) {
-                val result = response.body()
-                val sync = result?.synchronization
-                resultMessage = """
-                                    📊 Estado de Sincronización: ${sync?.get("status") ?: "N/A"}
-                                    
-                                    📈 Estadísticas:
-                                    • Registros en BD: ${sync?.get("database_records") ?: 0}
-                                    • Backups JSON: ${sync?.get("json_backups") ?: 0}
-                                    • Modelos Pickle: ${sync?.get("pickle_models") ?: 0}
-                                    
-                                    💡 ${sync?.get("recommendation") ?: "Estado verificado"}
-                                """.trimIndent()
-            } else {
-                resultMessage = "❌ Error verificando sincronización: ${response.message()}"
-            }
-        } catch (e: Exception) {
-            resultMessage = "❌ Error de conexión: ${e.message}"
-        } finally {
-            isExecuting = false
-            showResult = true
-        }
-    }
-}
-),
-Tool(
-title = "Gestión de Datos Completa",
-description = "Acceder al panel completo de gestión de datos",
-icon = Icons.Default.ManageAccounts,
-category = "Gestión de Datos",
-action = { navController.navigate("data_management") }
-),
-
-// Herramientas de Mantenimiento
-Tool(
-title = "Limpiar Sistema",
-description = "Eliminar archivos temporales y optimizar espacio",
-icon = Icons.Default.CleaningServices,
-category = "Mantenimiento",
-action = {
-    scope.launch {
-        isExecuting = true
-        try {
-            val response = RetrofitClient.apiService.cleanupSystem(24)
-            if (response.isSuccessful) {
-                val result = response.body()
-                resultMessage = """
-                                    ✅ ${result?.message}
-                                    
-                                    🧹 Limpieza completada
-                                    ⏱️ Archivos de más de 24 horas eliminados
-                                """.trimIndent()
-            } else {
-                resultMessage = "❌ Error en

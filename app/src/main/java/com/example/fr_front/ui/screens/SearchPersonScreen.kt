@@ -344,7 +344,7 @@ fun SearchPersonScreen(navController: NavHostController) {
                             )
 
                             PersonInfoRow(
-                                icon = Icons.Default.Enhancement,
+                                icon = Icons.Default.AutoAwesome,
                                 label = "Procesamiento Mejorado",
                                 value = if (systemInfo.enhanced_processing) "Habilitado" else "Deshabilitado"
                             )

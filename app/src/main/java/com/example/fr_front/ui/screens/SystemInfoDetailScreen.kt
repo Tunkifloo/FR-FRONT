@@ -1,5 +1,6 @@
 package com.example.fr_front.ui.screens
 
+import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,7 +48,9 @@ fun SystemInfoDetailScreen(navController: NavHostController) {
                     rootInfo = rootResponse.body()
                 }
 
-                lastUpdateTime = java.time.LocalDateTime.now().toString()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    lastUpdateTime = java.time.LocalDateTime.now().toString()
+                }
 
             } catch (e: Exception) {
                 errorMessage = "Error de conexión: ${e.message}"
